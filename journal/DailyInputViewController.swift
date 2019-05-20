@@ -27,6 +27,10 @@ class DailyInputViewController: UIViewController {
         date.insertText(dateString)
     }
     
+    @IBAction func cancel() {
+        dismiss(animated: true)
+    }
+    
     @IBAction func submit() {
         dismiss(animated: false) {
             let calendar = Calendar.current
@@ -35,12 +39,13 @@ class DailyInputViewController: UIViewController {
             c.month = calendar.component(.month, from: Date())
             c.day = calendar.component(.day, from: Date())
             let date = NSCalendar(identifier: NSCalendar.Identifier.gregorian)!.date(from: c as DateComponents)
-            let timestamp = date!.timeIntervalSince1970
-            print(timestamp)
+            let dateTimestamp = date!.timeIntervalSince1970
+            let sleepTimestamp = self.timeSleepPicker.date.timeIntervalSince1970 - 86400
+            let wakeTimestamp = self.timeWakePicker.date.timeIntervalSince1970
             let data = [
-                "date": "\(timestamp)",
-                "timeSleep": "\(self.timeSleepPicker.date)",
-                "timeWake": "\(self.timeWakePicker.date)",
+                "date": "\(dateTimestamp)",
+                "timeSleep": "\(sleepTimestamp)",
+                "timeWake": "\(wakeTimestamp)",
                 "memory": "\(self.memoryTextView.text ?? "")",
                 "happiness": "\(self.happinessSlider.value)",
                 "productivity": "\(self.productivitySlider.value)",
@@ -55,10 +60,8 @@ class DailyInputViewController: UIViewController {
             request.setValue("Powered by Swift!", forHTTPHeaderField: "X-Powered-By")
             let task = session.uploadTask(with: request, from: jsonData) { data, response, error in
                 if let data = data, let dataString = String(data: data, encoding: .utf8) {
-                    print(dataString)
                 }
             }
-            print("COMPLETE")
             task.resume()
         }
     }
